@@ -79,7 +79,7 @@ pub enum ToolCommands {
 
 #[derive(Debug, Clap)]
 #[clap(
-    about = "Estimate hours worked basted on a commit history", 
+    about = "Estimate hours worked based on a commit history", 
     long_about = "See https://github.com/kimmobrunfeldt/git-hours#how-it-works for details",
     version = clap::crate_version!(),
     visible_alias = "h")
