@@ -1,0 +1,22 @@
+---
+source: cargo-smart-release/tests/write_and_parse/mod.rs
+expression: md
+
+---
+# Changelog
+
+my very own header
+
+## Unreleased
+<csm-unknown>
+hello
+world
+<csm-unknown/>
+
+#### v1.0.2-beta.2 (1970-01-01)
+##### Thanks Clippy…
+
+Clippy is a linter to help keeping code idiomatic. It was helpful 42 times in this release.
+
+
+

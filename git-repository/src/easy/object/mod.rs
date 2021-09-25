@@ -96,19 +96,23 @@ impl<'repo, A> ObjectRef<'repo, A>
 where
     A: easy::Access + Sized,
 {
+    /// Obtain a fully parsed commit whose fields reference our data buffer, or panic if this is not a commit.
+    pub fn to_commit(&self) -> git_object::CommitRef<'_> {
+        self.try_to_commit().expect("can be decoded").expect("is a commit")
+    }
+
+    /// Obtain a fully parsed commit whose fields reference our data buffer.
+    pub fn try_to_commit(&self) -> Result<Option<git_object::CommitRef<'_>>, git_object::decode::Error> {
+        Ok(git_odb::data::Object::new(self.kind, &self.data)
+            .decode()?
+            .into_commit())
+    }
+
     /// Obtain a an iterator over commit tokens like in [`to_commit_iter()`][ObjectRef::try_to_commit_iter()], but panic if this is not a commit.
-    pub fn commit_iter(&self) -> git_object::CommitRefIter<'_> {
+    pub fn to_commit_iter(&self) -> git_object::CommitRefIter<'_> {
         git_odb::data::Object::new(self.kind, &self.data)
             .try_into_commit_iter()
             .expect("BUG: This object must be a commit")
-    }
-
-    /// Obtain a fully parsed commit whose fields reference our data buffer, or panic if this is not a commit.
-    pub fn commit(&self) -> Result<git_object::CommitRef<'_>, git_object::decode::Error> {
-        Ok(git_odb::data::Object::new(self.kind, &self.data)
-            .decode()?
-            .into_commit()
-            .expect("BUG: This object must be a commit"))
     }
 
     /// Obtain a commit token iterator from the data in this instance, if it is a commit.
@@ -117,7 +121,7 @@ where
     }
 
     /// Obtain a tag token iterator from the data in this instance, or panic if it is not a tag
-    pub fn tag_iter(&self) -> git_object::TagRefIter<'_> {
+    pub fn to_tag_iter(&self) -> git_object::TagRefIter<'_> {
         git_odb::data::Object::new(self.kind, &self.data)
             .try_into_tag_iter()
             .expect("BUG: this object must be a tag")

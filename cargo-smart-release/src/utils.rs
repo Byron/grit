@@ -4,6 +4,7 @@ use cargo_metadata::{
     Dependency, Metadata, Package, PackageId,
 };
 use git_repository as git;
+use git_repository::bstr::{BStr, ByteSlice};
 use semver::Version;
 
 pub fn will(not_really: bool) -> &'static str {
@@ -98,20 +99,34 @@ fn tag_name_inner(package_name: Option<&str>, version: &str) -> String {
     }
 }
 
+pub fn parse_possibly_prefixed_tag_version(package_name: Option<&str>, tag_name: &BStr) -> Option<Version> {
+    match package_name {
+        Some(name) => tag_name
+            .strip_prefix(name.as_bytes())
+            .and_then(|r| r.strip_prefix(b"-"))
+            .and_then(|possibly_version| parse_tag_version(possibly_version.as_bstr())),
+        None => parse_tag_version(tag_name),
+    }
+}
+
+pub fn parse_tag_version(name: &BStr) -> Option<Version> {
+    name.strip_prefix(b"v")
+        .and_then(|v| v.to_str().ok())
+        .and_then(|v| Version::parse(v).ok())
+}
+
 pub fn is_tag_name(package_name: &str, tag_name: &git::bstr::BStr) -> bool {
-    use git::bstr::ByteSlice;
     match tag_name
         .strip_prefix(package_name.as_bytes())
         .and_then(|r| r.strip_prefix(b"-"))
     {
         None => false,
-        Some(possibly_version) => is_tag_version(possibly_version.as_bstr()),
+        Some(possibly_version) => parse_tag_version(possibly_version.as_bstr()).is_some(),
     }
 }
 
 pub fn is_tag_version(name: &git::bstr::BStr) -> bool {
-    use git::bstr::ByteSlice;
-    name.starts_with_str(b"v") && name.split_str(b".").count() >= 3
+    parse_tag_version(name).is_some()
 }
 
 pub fn component_to_bytes(c: Utf8Component<'_>) -> &[u8] {
@@ -123,6 +138,39 @@ pub fn component_to_bytes(c: Utf8Component<'_>) -> &[u8] {
 
 #[cfg(test)]
 mod tests {
+    mod parse_possibly_prefixed_tag_version {
+        mod matches {
+            use git_repository::bstr::ByteSlice;
+            use semver::Version;
+
+            use crate::utils::{parse_possibly_prefixed_tag_version, tag_name_inner};
+
+            #[test]
+            fn whatever_tag_name_would_return() {
+                assert_eq!(
+                    parse_possibly_prefixed_tag_version(
+                        "git-test".into(),
+                        tag_name_inner("git-test".into(), "1.0.1").as_bytes().as_bstr()
+                    ),
+                    Version::parse("1.0.1").expect("valid").into()
+                );
+
+                assert_eq!(
+                    parse_possibly_prefixed_tag_version(
+                        "single".into(),
+                        tag_name_inner("single".into(), "0.0.1-beta.1").as_bytes().as_bstr()
+                    ),
+                    Version::parse("0.0.1-beta.1").expect("valid").into()
+                );
+
+                assert_eq!(
+                    parse_possibly_prefixed_tag_version(None, tag_name_inner(None, "0.0.1+123.x").as_bytes().as_bstr()),
+                    Version::parse("0.0.1+123.x").expect("valid").into()
+                );
+            }
+        }
+    }
+
     mod is_tag_name {
         mod no_match {
             use git_repository::bstr::ByteSlice;
@@ -170,17 +218,17 @@ mod tests {
             fn invalid_prefix() {
                 assert!(!is_tag_version(b"x0.0.1".as_bstr()));
             }
+
+            #[test]
+            fn funky() {
+                assert!(!is_tag_version(b"vers0.0.1".as_bstr()));
+                assert!(!is_tag_version(b"vHi.Ho.yada-anythingreally".as_bstr()));
+            }
         }
         mod matches {
             use git_repository::bstr::ByteSlice;
 
             use crate::utils::is_tag_version;
-
-            #[test]
-            fn funky() {
-                assert!(is_tag_version(b"vers0.0.1".as_bstr()));
-                assert!(is_tag_version(b"vHi.Ho.yada-anythingreally".as_bstr()));
-            }
 
             #[test]
             fn pre_release() {

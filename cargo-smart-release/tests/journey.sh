@@ -42,7 +42,7 @@ title "changelog"
     (with 'dry-run only'
       it "succeeds" && {
         WITH_SNAPSHOT="$snapshot/a-dry-run-success-multi-crate" \
-        expect_run $SUCCESSFULLY "$exe" changelog a
+        expect_run $SUCCESSFULLY "$exe" changelog a --no-preview
       }
     )
     (with '--write'

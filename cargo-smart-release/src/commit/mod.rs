@@ -2,6 +2,8 @@
 
 use std::borrow::Cow;
 
+use git_repository as git;
+
 pub mod history;
 
 #[derive(Debug)]
@@ -22,7 +24,7 @@ pub struct Message {
 }
 
 pub struct History {
-    pub head: git_repository::refs::Reference,
+    pub head: git::refs::Reference,
     pub items: Vec<history::Item>,
 }
 

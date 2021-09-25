@@ -57,7 +57,7 @@ where
                     self = access.find_object(tree_id)?;
                 }
                 Kind::Tag => {
-                    let target_id = self.tag_iter().target_id().expect("valid tag");
+                    let target_id = self.to_tag_iter().target_id().expect("valid tag");
                     let access = self.access;
                     drop(self);
                     self = access.find_object(target_id)?;
@@ -82,7 +82,7 @@ where
             match self.kind {
                 Kind::Commit | Kind::Tree | Kind::Blob => break Ok(self),
                 Kind::Tag => {
-                    let target_id = self.tag_iter().target_id().expect("valid tag");
+                    let target_id = self.to_tag_iter().target_id().expect("valid tag");
                     let access = self.access;
                     drop(self);
                     self = access.find_object(target_id)?;

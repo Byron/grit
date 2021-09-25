@@ -118,12 +118,12 @@ mod commit {
     fn multi_line_commit_message_uses_first_line_in_ref_log_ref_nonexisting() -> crate::Result {
         let (repo, _keep) = crate::basic_rw_repo()?;
         let parent = repo.find_reference("HEAD")?.peel_to_id_in_place()?;
-        let empty_tree_id = parent.object()?.commit_iter().tree_id().expect("tree to be set");
+        let empty_tree_id = parent.object()?.to_commit_iter().tree_id().expect("tree to be set");
         assert_eq!(
             parent
                 .try_object()?
                 .expect("present")
-                .commit_iter()
+                .to_commit_iter()
                 .tree_id()
                 .expect("tree to be set"),
             empty_tree_id,

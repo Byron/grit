@@ -32,12 +32,17 @@ pub struct ChangeLog {
     #[argh(switch)]
     pub allow_dirty: bool,
 
-    /// take into consideration any dependencies of the crates to generate the changelog for.
+    /// if --write is not set, 'bat' will be used (if available) to print the new changelog to stdout as preview. Use this flag
+    /// to disable such behaviour.
+    #[argh(switch)]
+    pub no_preview: bool,
+
+    /// do not take into consideration any dependencies of the crates to generate the changelog for.
     ///
     /// This flag is useful if you plan to review and finalize changelogs before a a smart-release, where dependencies
-    /// are taken into consideration by default.
+    /// are taken into consideration by default, but would like to do so one at a time.
     #[argh(switch)]
-    pub dependencies: bool,
+    pub no_dependencies: bool,
 
     /// the name of the crates to generate a changelog for.
     ///
@@ -123,7 +128,7 @@ pub struct SmartRelease {
     ///
     /// This flag is useful when various `--skip-X` are specified in order to bump versions only, without publishing.
     #[argh(switch)]
-    pub skip_dependencies: bool,
+    pub no_dependencies: bool,
 
     /// pass --no-verify to 'cargo publish' which should only be a last resort when fixing up packages that
     /// otherwise wouldn't publish, but need to be publish to resolve the situation.

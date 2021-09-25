@@ -8,16 +8,19 @@ license = "MIT OR Apache-2.0"
 edition = "2018"
 categories = ["development-tools::cargo-plugins"]
 keywords = ["cargo"]
+include = ["src/**/*", "README.md", "CHANGELOG.md", "!**/tests/**/*"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [[bin]]
 name = "cargo-smart-release"
 path = "src/cli/main-smart-release.rs"
+test = false
 
 [[bin]]
 name = "cargo-changelog"
 path = "src/cli/main-changelog.rs"
+test = false
 
 [features]
 cache-efficiency-debug = ["git-repository/cache-efficiency-debug"]
@@ -35,3 +38,8 @@ crates-index = "0.17.0"
 cargo_toml = "0.9.2"
 nom = { version = "7", default-features = false, features = ["std"]}
 git-conventional = "0.10.3"
+time = "0.3.2"
+pulldown-cmark = "0.8.0"
+
+[dev-dependencies]
+insta = "1.8.0"

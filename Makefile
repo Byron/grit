@@ -10,10 +10,10 @@ try-publish-all: ## Dry-run publish all crates in the currently set version if t
 	cargo run --package cargo-smart-release --bin cargo-smart-release -- smart-release gitoxide
 
 try-bump-minor-version: ## Show how updating the minor version of PACKAGE=<name> would look like.
-	cargo run --package cargo-smart-release --bin cargo-smart-release -- smart-release --update-crates-index --bump minor --skip-dependencies --skip-publish --skip-tag --skip-push -v $(PACKAGE)
+	cargo run --package cargo-smart-release --bin cargo-smart-release -- smart-release --update-crates-index --bump minor --no-dependencies --skip-publish --skip-tag --skip-push -v $(PACKAGE)
 
 bump-minor-version: ## Similar to try-bump-minor-version, but actually performs the operation on PACKAGE=<name>
-	cargo run --package cargo-smart-release --bin cargo-smart-release -- smart-release --update-crates-index --bump minor --skip-dependencies --skip-publish --skip-tag --skip-push -v $(PACKAGE) --execute
+	cargo run --package cargo-smart-release --bin cargo-smart-release -- smart-release --update-crates-index --bump minor --no-dependencies --skip-publish --skip-tag --skip-push -v $(PACKAGE) --execute
 
 ##@ Release Builds
 
@@ -308,6 +308,6 @@ force-update-assets: ## As update-assets, but will run git to update the baselin
 check-size: ## Run cargo-diet on all crates to see that they are still in bound
 	./etc/check-package-size.sh
 
-rustfmt: ## run nightly rustfmt for its extra features, but check that it won't upset stable rustfmt
+fmt: ## run nightly rustfmt for its extra features, but check that it won't upset stable rustfmt
 	cargo +nightly fmt --all -- --config-path rustfmt-nightly.toml
 	cargo +stable fmt --all -- --check
