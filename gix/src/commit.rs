@@ -1,6 +1,8 @@
 //!
 #![allow(clippy::empty_docs)]
 
+use std::convert::Infallible;
+
 /// An empty array of a type usable with the `gix::easy` API to help declaring no parents should be used
 pub const NO_PARENT_IDS: [gix_hash::ObjectId; 0] = [];
 
@@ -20,6 +22,12 @@ pub enum Error {
     WriteObject(#[from] crate::object::write::Error),
     #[error(transparent)]
     ReferenceEdit(#[from] crate::reference::edit::Error),
+}
+
+impl From<std::convert::Infallible> for Error {
+    fn from(_value: Infallible) -> Self {
+        unreachable!("cannot be invoked")
+    }
 }
 
 ///
