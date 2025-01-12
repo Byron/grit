@@ -9,7 +9,7 @@ description = "A crate for running tests with feature toggles on gix-worktree-st
 authors = ["Sebastian Thiel <sebastian.thiel@icloud.com>"]
 edition = "2021"
 publish = false
-rust-version = "1.65"
+rust-version = "1.70"
 
 [[test]]
 name = "worktree"

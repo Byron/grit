@@ -23,7 +23,7 @@ impl<'a> Platform<'a> {
     #[doc(alias = "is_path_ignored", alias = "git2")]
     pub fn is_excluded(&self) -> bool {
         self.matching_exclude_pattern()
-            .map_or(false, |m| !m.pattern.is_negative())
+            .is_some_and(|m| !m.pattern.is_negative())
     }
 
     /// See if a non-negative ignore-pattern matches and obtain the kind of exclude, or return `None`

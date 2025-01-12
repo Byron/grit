@@ -131,7 +131,7 @@ impl Repository {
                         Some(crate::pathspec::is_dir_to_mode(is_dir)),
                         &pathspec.repo.objects,
                     )
-                    .map_or(false, |platform| platform.matching_attributes(out))
+                    .is_ok_and(|platform| platform.matching_attributes(out))
             },
         )?;
 

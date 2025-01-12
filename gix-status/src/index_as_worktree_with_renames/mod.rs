@@ -101,7 +101,7 @@ pub(super) mod function {
                                             stack
                                                 .set_case(case)
                                                 .at_entry(relative_path, Some(is_dir_to_mode(is_dir)), &objects)
-                                                .map_or(false, |platform| platform.matching_attributes(out))
+                                                .is_ok_and(|platform| platform.matching_attributes(out))
                                         },
                                         excludes: excludes.as_mut(),
                                         objects: &objects,

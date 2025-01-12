@@ -8,7 +8,7 @@ license = "MIT OR Apache-2.0"
 description = "generate a byte-stream from a git-tree"
 authors = ["Sebastian Thiel <sebastian.thiel@icloud.com>"]
 edition = "2021"
-rust-version = "1.65"
+rust-version = "1.70"
 include = ["src/**/*", "LICENSE-*"]
 
 [lib]

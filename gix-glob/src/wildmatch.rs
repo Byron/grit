@@ -240,7 +240,7 @@ pub(crate) mod function {
                             }
                             BRACKET_OPEN if matches!(p.peek(), Some((_, COLON))) => {
                                 p.next();
-                                while p.peek().map_or(false, |t| t.1 != BRACKET_CLOSE) {
+                                while p.peek().is_some_and(|t| t.1 != BRACKET_CLOSE) {
                                     p.next();
                                 }
                                 let closing_bracket_idx = match p.next() {

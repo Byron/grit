@@ -62,7 +62,7 @@ fn validated_name(name: Cow<'_, BStr>) -> Result<Cow<'_, BStr>, Error> {
 impl Header<'_> {
     ///Return true if this is a header like `[legacy.subsection]`, or false otherwise.
     pub fn is_legacy(&self) -> bool {
-        self.separator.as_deref().map_or(false, |n| n == ".")
+        self.separator.as_deref().is_some_and(|n| n == ".")
     }
 
     /// Return the subsection name, if present, i.e. "origin" in `[remote "origin"]`.

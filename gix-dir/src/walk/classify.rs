@@ -24,7 +24,7 @@ pub fn root(
     let mut out = path(&mut path_buf, buf, 0, file_kind, || None, options, ctx)?;
     let worktree_root_is_repository = out
         .disk_kind
-        .map_or(false, |kind| matches!(kind, entry::Kind::Repository));
+        .is_some_and(|kind| matches!(kind, entry::Kind::Repository));
 
     for component in worktree_relative_root.components() {
         if last_length.is_some() {
@@ -200,7 +200,7 @@ pub fn path(
         .pattern_matching_relative_path(rela_path.as_bstr(), kind.map(|ft| ft.is_dir()), ctx.pathspec_attributes)
         .map(Into::into);
 
-    if worktree_relative_worktree_dirs.map_or(false, |worktrees| worktrees.contains(&*rela_path)) {
+    if worktree_relative_worktree_dirs.is_some_and(|worktrees| worktrees.contains(&*rela_path)) {
         return Ok(out
             .with_kind(Some(entry::Kind::Repository), None)
             .with_status(entry::Status::Tracked));
@@ -267,9 +267,9 @@ pub fn path(
                     ),
                 );
             }
-            if kind.map_or(false, |d| d.is_recursable_dir())
+            if kind.is_some_and(|d| d.is_recursable_dir())
                 && (out.pathspec_match.is_none()
-                    || worktree_relative_worktree_dirs.map_or(false, |worktrees| {
+                    || worktree_relative_worktree_dirs.is_some_and(|worktrees| {
                         for_deletion.is_some()
                             && worktrees
                                 .iter()
@@ -289,7 +289,7 @@ pub fn path(
     debug_assert!(maybe_status.is_none());
     let mut status = entry::Status::Untracked;
 
-    if kind.map_or(false, |ft| ft.is_dir()) {
+    if kind.is_some_and(|ft| ft.is_dir()) {
         kind = maybe_upgrade_to_repository(kind, classify_untracked_bare_repositories);
     } else if out.pathspec_match.is_none() {
         status = entry::Status::Pruned;
@@ -313,7 +313,7 @@ pub fn maybe_upgrade_to_repository(
         if is_nested_repo {
             let git_dir_is_our_own = gix_path::realpath_opts(path, current_dir, gix_path::realpath::MAX_SYMLINKS)
                 .ok()
-                .map_or(false, |realpath_candidate| realpath_candidate == git_dir_realpath);
+                .is_some_and(|realpath_candidate| realpath_candidate == git_dir_realpath);
             is_nested_repo = !git_dir_is_our_own;
         }
         if is_nested_repo {
@@ -325,7 +325,7 @@ pub fn maybe_upgrade_to_repository(
     if is_nested_nonbare_repo {
         let git_dir_is_our_own = gix_path::realpath_opts(path, current_dir, gix_path::realpath::MAX_SYMLINKS)
             .ok()
-            .map_or(false, |realpath_candidate| realpath_candidate == git_dir_realpath);
+            .is_some_and(|realpath_candidate| realpath_candidate == git_dir_realpath);
         is_nested_nonbare_repo = !git_dir_is_our_own;
     }
     path.pop();
@@ -387,7 +387,7 @@ fn resolve_file_type_with_index(
             }
             Some(entry) => {
                 let icase_dir = index.entry_closest_to_directory_icase(rela_path.as_bstr(), true, accelerate);
-                let directory_matches_exactly = icase_dir.map_or(false, |dir| {
+                let directory_matches_exactly = icase_dir.is_some_and(|dir| {
                     let path = dir.path(index);
                     let slash_idx = path.rfind_byte(b'/').expect("dir");
                     path[..slash_idx].as_bstr() == rela_path
@@ -430,7 +430,7 @@ fn resolve_file_type_with_index(
                 if all_excluded_from_worktree_non_cone
                     || one_index_signalling_with_cone
                         .filter(|_| kind.is_none())
-                        .map_or(false, |idx| index.entries()[idx].mode.is_sparse())
+                        .is_some_and(|idx| index.entries()[idx].mode.is_sparse())
                 {
                     special_property = Some(entry::Property::TrackedExcluded);
                 }

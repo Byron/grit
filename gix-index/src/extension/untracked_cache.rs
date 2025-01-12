@@ -40,7 +40,7 @@ pub const SIGNATURE: Signature = *b"UNTR";
 // #[allow(unused)]
 /// Decode an untracked cache extension from `data`, assuming object hashes are of type `object_hash`.
 pub fn decode(data: &[u8], object_hash: gix_hash::Kind) -> Option<UntrackedCache> {
-    if !data.last().map_or(false, |b| *b == 0) {
+    if !data.last().is_some_and(|b| *b == 0) {
         return None;
     }
     let (identifier_len, data) = var_int(data)?;

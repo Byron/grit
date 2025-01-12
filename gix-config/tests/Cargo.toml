@@ -8,7 +8,7 @@ description = "Tests for the gix-config crate"
 license = "MIT OR Apache-2.0"
 authors = ["Edward Shen <code@eddie.sh>"]
 edition = "2021"
-rust-version = "1.65"
+rust-version = "1.70"
 publish = false
 
 

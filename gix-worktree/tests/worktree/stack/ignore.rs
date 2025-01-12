@@ -159,7 +159,7 @@ fn check_against_baseline() -> crate::Result {
                     );
                 }
                 // Paths read from the index are relative to the repo, and they don't exist locally due tot skip-worktree
-                if m.source.map_or(false, std::path::Path::exists) {
+                if m.source.is_some_and(std::path::Path::exists) {
                     assert_eq!(
                         m.source.map(|p| p.canonicalize().unwrap()),
                         Some(worktree_dir.join(source_file.to_str_lossy().as_ref()).canonicalize()?)

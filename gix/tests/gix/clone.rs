@@ -677,7 +677,7 @@ mod blocking_io {
                 .handshake
                 .capabilities
                 .capability("ls-refs")
-                .map_or(false, |cap| cap.supports("unborn").unwrap_or(false));
+                .is_some_and(|cap| cap.supports("unborn").unwrap_or(false));
             if supports_unborn {
                 assert_eq!(
                     head.referent_name().expect("present").as_bstr(),

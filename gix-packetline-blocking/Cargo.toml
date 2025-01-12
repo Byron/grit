@@ -9,7 +9,7 @@ description = "A duplicate of `gix-packetline` with the `blocking-io` feature pr
 authors = ["Sebastian Thiel <sebastian.thiel@icloud.com>"]
 edition = "2021"
 include = ["src/**/*", "LICENSE-*"]
-rust-version = "1.65"
+rust-version = "1.70"
 
 [lib]
 doctest = false

@@ -263,11 +263,21 @@ impl ThreadSafeRepository {
                 .resolved
                 .path_filter(Core::WORKTREE, {
                     |section| {
-                        let res = filter_config_section(section);
-                        if res {
-                            key_source = Some(section.source);
+                        if !filter_config_section(section) {
+                            return false;
                         }
-                        res
+                        // ignore worktree settings that aren't from our repository. This can happen
+                        // with worktrees of submodules for instance.
+                        let is_config_in_our_repo = section
+                            .path
+                            .as_deref()
+                            .and_then(|p| gix_path::normalize(p.into(), current_dir))
+                            .is_some_and(|config_path| config_path.starts_with(&git_dir));
+                        if !is_config_in_our_repo {
+                            return false;
+                        }
+                        key_source = Some(section.source);
+                        true
                     }
                 })
                 .zip(key_source);

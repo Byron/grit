@@ -181,7 +181,7 @@ where
         {
             remote_ref_target_known[mapping_idx] = true;
             cutoff_date = cutoff_date.unwrap_or_default().max(commit.commit_time).into();
-        } else if want_id.map_or(false, |maybe_annotated_tag| objects.exists(maybe_annotated_tag)) {
+        } else if want_id.is_some_and(|maybe_annotated_tag| objects.exists(maybe_annotated_tag)) {
             remote_ref_target_known[mapping_idx] = true;
         }
     }
@@ -263,12 +263,12 @@ pub fn make_refmapping_ignore_predicate(fetch_tags: Tags, ref_map: &RefMap) -> i
         .then(|| fetch_tags.to_refspec())
         .flatten();
     move |mapping| {
-        tag_refspec_to_ignore.map_or(false, |tag_spec| {
+        tag_refspec_to_ignore.is_some_and(|tag_spec| {
             mapping
                 .spec_index
                 .implicit_index()
                 .and_then(|idx| ref_map.extra_refspecs.get(idx))
-                .map_or(false, |spec| spec.to_ref() == tag_spec)
+                .is_some_and(|spec| spec.to_ref() == tag_spec)
         })
     }
 }

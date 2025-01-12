@@ -135,7 +135,7 @@ impl Pattern {
                     value
                         .len()
                         .checked_sub(text.len())
-                        .map_or(false, |start| text.eq_ignore_ascii_case(&value[start..]))
+                        .is_some_and(|start| text.eq_ignore_ascii_case(&value[start..]))
                 } else {
                     value.ends_with(text.as_ref())
                 }
@@ -144,7 +144,7 @@ impl Pattern {
                 if mode.contains(wildmatch::Mode::IGNORE_CASE) {
                     if !value
                         .get(..pos)
-                        .map_or(false, |value| value.eq_ignore_ascii_case(&self.text[..pos]))
+                        .is_some_and(|value| value.eq_ignore_ascii_case(&self.text[..pos]))
                     {
                         return false;
                     }

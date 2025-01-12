@@ -169,7 +169,7 @@ impl Repository {
     where
         E: From<crate::repository::attributes::Error> + From<crate::pathspec::init::Error>,
     {
-        let empty_patterns_match_prefix = options.map_or(false, |opts| opts.empty_patterns_match_prefix);
+        let empty_patterns_match_prefix = options.is_some_and(|opts| opts.empty_patterns_match_prefix);
         let attrs_and_excludes = self.attributes(
             index,
             crate::worktree::stack::state::attributes::Source::WorktreeThenIdMapping,
@@ -264,7 +264,7 @@ mod submodule_status {
             let Ok(Some(mut submodules)) = repo.submodules() else {
                 return Ok(None);
             };
-            let Some(sm) = submodules.find(|sm| sm.path().map_or(false, |path| path == rela_path)) else {
+            let Some(sm) = submodules.find(|sm| sm.path().is_ok_and(|path| path == rela_path)) else {
                 return Ok(None);
             };
             let (ignore, check_dirty) = match self.mode {

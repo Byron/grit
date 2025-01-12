@@ -77,7 +77,7 @@ impl Outcome {
     /// If they are not written back, subsequent `status` operations will take longer to complete, whereas the
     /// additional work can be prevented by writing the changes back to the index.
     pub fn has_changes(&self) -> bool {
-        self.changes.as_ref().map_or(false, |changes| !changes.is_empty())
+        self.changes.as_ref().is_some_and(|changes| !changes.is_empty())
     }
 
     /// Write the changes if there are any back to the index file.

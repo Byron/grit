@@ -242,7 +242,7 @@ impl delegate::Navigate for Delegate<'_> {
                                     .peeled()
                                     .ok()?
                                     .filter_map(Result::ok)
-                                    .filter(|r| r.id().header().ok().map_or(false, |obj| obj.kind().is_commit()))
+                                    .filter(|r| r.id().header().ok().is_some_and(|obj| obj.kind().is_commit()))
                                     .filter_map(|r| r.detach().peeled),
                             )
                             .sorting(crate::revision::walk::Sorting::ByCommitTime(Default::default()))
@@ -335,7 +335,7 @@ impl delegate::Navigate for Delegate<'_> {
                     let exists = self
                         .repo
                         .work_dir()
-                        .map_or(false, |root| root.join(gix_path::from_bstr(path)).exists());
+                        .is_some_and(|root| root.join(gix_path::from_bstr(path)).exists());
                     self.err.push(Error::IndexLookup {
                         desired_path: path.into(),
                         desired_stage: stage,

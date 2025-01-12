@@ -233,10 +233,7 @@ impl Conflict {
         };
         match how.tree_merge {
             treat_as_unresolved::TreeMerge::Undecidable => {
-                self.resolution.is_err()
-                    || self
-                        .content_merge()
-                        .map_or(false, |info| content_merge_unresolved(&info))
+                self.resolution.is_err() || self.content_merge().is_some_and(|info| content_merge_unresolved(&info))
             }
             treat_as_unresolved::TreeMerge::EvasiveRenames | treat_as_unresolved::TreeMerge::ForcedResolution => {
                 match &self.resolution {
@@ -246,13 +243,13 @@ impl Conflict {
                             how.tree_merge == treat_as_unresolved::TreeMerge::ForcedResolution
                                 || self
                                     .content_merge()
-                                    .map_or(false, |merged_blob| content_merge_unresolved(&merged_blob))
+                                    .is_some_and(|merged_blob| content_merge_unresolved(&merged_blob))
                         }
                         Resolution::OursModifiedTheirsRenamedAndChangedThenRename {
                             merged_blob,
                             final_location,
                             ..
-                        } => final_location.is_some() || merged_blob.as_ref().map_or(false, content_merge_unresolved),
+                        } => final_location.is_some() || merged_blob.as_ref().is_some_and(content_merge_unresolved),
                         Resolution::OursModifiedTheirsModifiedThenBlobContentMerge { merged_blob } => {
                             content_merge_unresolved(merged_blob)
                         }

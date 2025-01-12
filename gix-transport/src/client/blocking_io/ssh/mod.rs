@@ -125,7 +125,7 @@ pub fn connect(
                 }),
         );
         gix_features::trace::debug!(cmd = ?cmd, "invoking `ssh` for feature check");
-        kind = if cmd.status().ok().map_or(false, |status| status.success()) {
+        kind = if cmd.status().ok().is_some_and(|status| status.success()) {
             ProgramKind::Ssh
         } else {
             ProgramKind::Simple

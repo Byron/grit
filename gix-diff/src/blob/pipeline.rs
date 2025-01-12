@@ -406,7 +406,7 @@ impl Pipeline {
                         if matches!(mode, EntryKind::Blob | EntryKind::BlobExecutable)
                             && convert == Mode::ToWorktreeAndBinaryToText
                             || (convert == Mode::ToGitUnlessBinaryToTextIsPresent
-                                && driver.map_or(false, |d| d.binary_to_text_command.is_some()))
+                                && driver.is_some_and(|d| d.binary_to_text_command.is_some()))
                         {
                             let res =
                                 self.worktree_filter

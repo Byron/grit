@@ -90,7 +90,7 @@ pub(crate) fn update(
                     remote,
                     local,
                     spec,
-                    implicit_tag_refspec.map_or(false, |tag_spec| spec.to_ref() == tag_spec),
+                    implicit_tag_refspec.is_some_and(|tag_spec| spec.to_ref() == tag_spec),
                 )
             })
         },
@@ -170,7 +170,7 @@ pub(crate) fn update(
                                                 });
                                             match ancestors {
                                                 Ok(mut ancestors) => {
-                                                    ancestors.any(|cid| cid.map_or(false, |c| c.id == local_id))
+                                                    ancestors.any(|cid| cid.is_ok_and(|c| c.id == local_id))
                                                 }
                                                 Err(_) => {
                                                     force = true;

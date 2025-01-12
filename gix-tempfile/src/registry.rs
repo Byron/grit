@@ -21,10 +21,7 @@ pub fn cleanup_tempfiles_signal_safe() {
         for idx in 0..one_past_last_index {
             if let Some(entry) = REGISTRY.try_entry(idx) {
                 entry.and_modify(|tempfile| {
-                    if tempfile
-                        .as_ref()
-                        .map_or(false, |tf| tf.owning_process_id == current_pid)
-                    {
+                    if tempfile.as_ref().is_some_and(|tf| tf.owning_process_id == current_pid) {
                         if let Some(tempfile) = tempfile.take() {
                             tempfile.drop_without_deallocation();
                         }
@@ -55,7 +52,7 @@ pub fn cleanup_tempfiles() {
     let current_pid = std::process::id();
     #[cfg(feature = "hp-hashmap")]
     REGISTRY.iter_mut().for_each(|mut tf| {
-        if tf.as_ref().map_or(false, |tf| tf.owning_process_id == current_pid) {
+        if tf.as_ref().is_some_and(|tf| tf.owning_process_id == current_pid) {
             tf.take();
         }
     });

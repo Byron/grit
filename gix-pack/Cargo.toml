@@ -9,7 +9,7 @@ license = "MIT OR Apache-2.0"
 description = "Implements git packs and related data structures"
 edition = "2021"
 include = ["src/**/*", "LICENSE-*"]
-rust-version = "1.65"
+rust-version = "1.70"
 autotests = false
 
 [lib]

@@ -150,21 +150,21 @@ fn is_win_device(input: &BStr) -> bool {
     // Hence, justification for this asymmetry is merely to do exactly the same as Git does,
     // and to have exactly the same behaviour during validation (for worktree-writes).
     if in3.eq_ignore_ascii_case(b"COM")
-        && input.get(3).map_or(false, |n| *n >= b'1' && *n <= b'9')
+        && input.get(3).is_some_and(|n| *n >= b'1' && *n <= b'9')
         && is_done_windows(input.get(4..))
     {
         return true;
     }
     if in3.eq_ignore_ascii_case(b"LPT")
-        && input.get(3).map_or(false, u8::is_ascii_digit)
+        && input.get(3).is_some_and(u8::is_ascii_digit)
         && is_done_windows(input.get(4..))
     {
         return true;
     }
     if in3.eq_ignore_ascii_case(b"CON")
         && (is_done_windows(input.get(3..))
-            || (input.get(3..6).map_or(false, |n| n.eq_ignore_ascii_case(b"IN$")) && is_done_windows(input.get(6..)))
-            || (input.get(3..7).map_or(false, |n| n.eq_ignore_ascii_case(b"OUT$")) && is_done_windows(input.get(7..))))
+            || (input.get(3..6).is_some_and(|n| n.eq_ignore_ascii_case(b"IN$")) && is_done_windows(input.get(6..)))
+            || (input.get(3..7).is_some_and(|n| n.eq_ignore_ascii_case(b"OUT$")) && is_done_windows(input.get(7..))))
     {
         return true;
     }
@@ -231,16 +231,10 @@ fn is_dot_hfs(input: &BStr, search_case_insensitive: &str) -> bool {
 }
 
 fn is_dot_git_ntfs(input: &BStr) -> bool {
-    if input
-        .get(..4)
-        .map_or(false, |input| input.eq_ignore_ascii_case(b".git"))
-    {
+    if input.get(..4).is_some_and(|input| input.eq_ignore_ascii_case(b".git")) {
         return is_done_ntfs(input.get(4..));
     }
-    if input
-        .get(..5)
-        .map_or(false, |input| input.eq_ignore_ascii_case(b"git~1"))
-    {
+    if input.get(..5).is_some_and(|input| input.eq_ignore_ascii_case(b"git~1")) {
         return is_done_ntfs(input.get(5..));
     }
     false
@@ -253,9 +247,10 @@ fn is_dot_git_ntfs(input: &BStr) -> bool {
 fn is_dot_ntfs(input: &BStr, search_case_insensitive: &str, ntfs_shortname_prefix: &str) -> bool {
     if input.first() == Some(&b'.') {
         let end_pos = 1 + search_case_insensitive.len();
-        if input.get(1..end_pos).map_or(false, |input| {
-            input.eq_ignore_ascii_case(search_case_insensitive.as_bytes())
-        }) {
+        if input
+            .get(1..end_pos)
+            .is_some_and(|input| input.eq_ignore_ascii_case(search_case_insensitive.as_bytes()))
+        {
             is_done_ntfs(input.get(end_pos..))
         } else {
             false
@@ -265,12 +260,12 @@ fn is_dot_ntfs(input: &BStr, search_case_insensitive: &str, ntfs_shortname_prefi
         if search_case_insensitive
             .get(..6)
             .zip(input.get(..6))
-            .map_or(false, |(ntfs_prefix, first_6_of_input)| {
+            .is_some_and(|(ntfs_prefix, first_6_of_input)| {
                 first_6_of_input.eq_ignore_ascii_case(ntfs_prefix)
                     && input.get(6) == Some(&b'~')
                     // It's notable that only `~1` to `~4` are possible before the disambiguation algorithm
                     // switches to using the `ntfs_shortname_prefix`, which is checked hereafter.
-                    && input.get(7).map_or(false, |num| (b'1'..=b'4').contains(num))
+                    && input.get(7).is_some_and(|num| (b'1'..=b'4').contains(num))
             })
         {
             return is_done_ntfs(input.get(8..));

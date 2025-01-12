@@ -118,7 +118,7 @@ impl Iterator for LooseThenPacked<'_, '_> {
     fn next(&mut self) -> Option<Self::Item> {
         fn advance_to_non_private(iter: &mut Peekable<SortedLoosePaths>) {
             while let Some(Ok((_path, name))) = iter.peek() {
-                if name.category().map_or(false, |cat| cat.is_worktree_private()) {
+                if name.category().is_some_and(|cat| cat.is_worktree_private()) {
                     iter.next();
                 } else {
                     break;

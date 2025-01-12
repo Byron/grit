@@ -457,10 +457,10 @@ mod blocking_and_async_io {
                     assert_eq!(negotiate.rounds.len(), 1);
                     assert_eq!(write_pack_bundle.index.data_hash, hex_to_id(expected_data_hash), );
                     assert_eq!(write_pack_bundle.index.num_objects, 3 + num_objects_offset, "{fetch_tags:?}");
-                    assert!(write_pack_bundle.data_path.as_deref().map_or(false, std::path::Path::is_file));
-                    assert!(write_pack_bundle.index_path.as_deref().map_or(false, std::path::Path::is_file));
+                    assert!(write_pack_bundle.data_path.as_deref().is_some_and(std::path::Path::is_file));
+                    assert!(write_pack_bundle.index_path.as_deref().is_some_and(std::path::Path::is_file));
                     assert_eq!(update_refs.edits.len(), expected_ref_edits, "{fetch_tags:?}");
-                    assert_eq!(write_pack_bundle.keep_path.as_deref().map_or(false, std::path::Path::is_file), update_refs.edits.is_empty(),".keep are kept if there was no edit to prevent `git gc` from clearing out the pack as it's not referred to necessarily");
+                    assert_eq!(write_pack_bundle.keep_path.as_deref().is_some_and(std::path::Path::is_file), update_refs.edits.is_empty(),".keep are kept if there was no edit to prevent `git gc` from clearing out the pack as it's not referred to necessarily");
                 },
                 _ => unreachable!("Naive negotiation sends the same have and wants, resulting in an empty pack (technically no change, but we don't detect it) - empty packs are fine")
             }
@@ -547,8 +547,8 @@ mod blocking_and_async_io {
                             write_pack_bundle.index.index_hash,
                             hex_to_id("d07c527cf14e524a8494ce6d5d08e28079f5c6ea")
                         );
-                        assert!(write_pack_bundle.data_path.map_or(false, |f| f.is_file()));
-                        assert!(write_pack_bundle.index_path.map_or(false, |f| f.is_file()));
+                        assert!(write_pack_bundle.data_path.is_some_and(|f| f.is_file()));
+                        assert!(write_pack_bundle.index_path.is_some_and(|f| f.is_file()));
                         assert_eq!(update_refs.edits.len(), 2);
 
                         let edit = &update_refs.edits[0];
@@ -578,7 +578,7 @@ mod blocking_and_async_io {
                         }
 
                         assert!(
-                            !write_pack_bundle.keep_path.map_or(false, |f| f.is_file()),
+                            !write_pack_bundle.keep_path.is_some_and(|f| f.is_file()),
                             ".keep files are deleted if there is one edit"
                         );
 

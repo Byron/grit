@@ -92,7 +92,7 @@ impl Repository {
                     stack
                         .set_case(case)
                         .at_entry(relative_path, Some(is_dir_to_mode(is_dir)), &self.objects)
-                        .map_or(false, |platform| platform.matching_attributes(out))
+                        .is_ok_and(|platform| platform.matching_attributes(out))
                 },
                 excludes: Some(&mut excludes.inner),
                 objects: &self.objects,

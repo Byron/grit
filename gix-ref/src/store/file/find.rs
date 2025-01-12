@@ -232,7 +232,7 @@ impl file::Store {
                     MainRef | MainPseudoRef => (commondir.into(), sn),
                     LinkedRef { name: worktree_name } => sn
                         .category()
-                        .map_or(false, |cat| cat.is_worktree_private())
+                        .is_some_and(|cat| cat.is_worktree_private())
                         .then(|| {
                             if is_reflog {
                                 (linked_git_dir(worktree_name).into(), sn)

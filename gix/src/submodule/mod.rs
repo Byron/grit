@@ -155,7 +155,7 @@ impl Submodule<'_> {
                 attributes
                     .set_case(case)
                     .at_entry(relative_path, Some(is_dir_to_mode(is_dir)), &self.state.repo.objects)
-                    .map_or(false, |platform| platform.matching_attributes(out))
+                    .is_ok_and(|platform| platform.matching_attributes(out))
             }
         })?;
         Ok(is_active)
@@ -417,7 +417,7 @@ pub mod status {
                 return None;
             }
             let is_dirty =
-                self.checked_out_head_id != self.index_id || self.changes.as_ref().map_or(false, |c| !c.is_empty());
+                self.checked_out_head_id != self.index_id || self.changes.as_ref().is_some_and(|c| !c.is_empty());
             Some(is_dirty)
         }
     }

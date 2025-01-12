@@ -274,11 +274,7 @@ impl<'a, 'event> SectionMut<'a, 'event> {
     /// Performs the removal, assuming the range is valid.
     fn remove_internal(&mut self, range: Range<usize>, fix_whitespace: bool) -> Cow<'event, BStr> {
         let events = &mut self.section.body.0;
-        if fix_whitespace
-            && events
-                .get(range.end)
-                .map_or(false, |ev| matches!(ev, Event::Newline(_)))
-        {
+        if fix_whitespace && events.get(range.end).is_some_and(|ev| matches!(ev, Event::Newline(_))) {
             events.remove(range.end);
         }
         let value = events
@@ -294,7 +290,7 @@ impl<'a, 'event> SectionMut<'a, 'event> {
                 .start
                 .checked_sub(1)
                 .and_then(|pos| events.get(pos))
-                .map_or(false, |ev| matches!(ev, Event::Whitespace(_)))
+                .is_some_and(|ev| matches!(ev, Event::Whitespace(_)))
         {
             events.remove(range.start - 1);
         }

@@ -26,7 +26,7 @@ pub(super) fn recursive(
     out: &mut Outcome,
     state: &mut State,
 ) -> Result<(Action, bool), Error> {
-    if ctx.should_interrupt.map_or(false, |flag| flag.load(Ordering::Relaxed)) {
+    if ctx.should_interrupt.is_some_and(|flag| flag.load(Ordering::Relaxed)) {
         return Err(Error::Interrupted);
     }
     out.read_dir_calls += 1;
@@ -303,12 +303,10 @@ impl Mark {
             if kind == Some(entry::Kind::Repository) {
                 return None;
             }
-            if pathspec_match.map_or(false, |m| {
-                matches!(m, PathspecMatch::Verbatim | PathspecMatch::Excluded)
-            }) {
+            if pathspec_match.is_some_and(|m| matches!(m, PathspecMatch::Verbatim | PathspecMatch::Excluded)) {
                 return None;
             }
-            matching_entries += usize::from(pathspec_match.map_or(false, |m| !m.should_ignore()));
+            matching_entries += usize::from(pathspec_match.is_some_and(|m| !m.should_ignore()));
             match status {
                 Status::Pruned => {
                     unreachable!("BUG: pruned aren't ever held, check `should_hold()`")

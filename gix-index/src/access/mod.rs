@@ -331,8 +331,8 @@ impl State {
                 .get(..prefix_len)
                 .map_or_else(|| e.path(self) <= &prefix[..e.path.len()], |p| p < prefix)
         });
-        let mut high = low
-            + self.entries[low..].partition_point(|e| e.path(self).get(..prefix_len).map_or(false, |p| p <= prefix));
+        let mut high =
+            low + self.entries[low..].partition_point(|e| e.path(self).get(..prefix_len).is_some_and(|p| p <= prefix));
 
         let low_entry = &self.entries.get(low)?;
         if low_entry.stage_raw() != 0 {

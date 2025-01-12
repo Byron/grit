@@ -89,7 +89,7 @@ pub(crate) mod function {
         let mut current_height = 0;
         let mut cursor_metadata = Some(dir_metadata);
         'outer: loop {
-            if max_height.map_or(false, |x| current_height > x) {
+            if max_height.is_some_and(|x| current_height > x) {
                 return Err(Error::NoGitRepositoryWithinCeiling {
                     path: dir.into_owned(),
                     ceiling_height: current_height,
@@ -168,7 +168,7 @@ pub(crate) mod function {
                     }
                 }
             }
-            if cursor.parent().map_or(false, |p| p.as_os_str().is_empty()) {
+            if cursor.parent().is_some_and(|p| p.as_os_str().is_empty()) {
                 cursor = cwd.to_path_buf();
                 dir_made_absolute = true;
             }

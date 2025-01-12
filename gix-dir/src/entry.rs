@@ -190,7 +190,7 @@ impl Status {
         for_deletion: Option<ForDeletionMode>,
         worktree_root_is_repository: bool,
     ) -> bool {
-        let is_dir_on_disk = file_type.map_or(false, |ft| {
+        let is_dir_on_disk = file_type.is_some_and(|ft| {
             if worktree_root_is_repository {
                 ft.is_dir()
             } else {
@@ -203,13 +203,13 @@ impl Status {
         match self {
             Status::Pruned => false,
             Status::Ignored(_) => {
-                for_deletion.map_or(false, |fd| {
+                for_deletion.is_some_and(|fd| {
                     matches!(
                         fd,
                         ForDeletionMode::FindNonBareRepositoriesInIgnoredDirectories
                             | ForDeletionMode::FindRepositoriesInIgnoredDirectories
                     )
-                }) || pathspec_match.map_or(false, |m| !m.should_ignore())
+                }) || pathspec_match.is_some_and(|m| !m.should_ignore())
             }
             Status::Untracked | Status::Tracked => true,
         }

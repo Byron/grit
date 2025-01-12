@@ -2,12 +2,17 @@ use crate::{worktree, Worktree};
 
 /// Interact with individual worktrees and their information.
 impl crate::Repository {
-    /// Return a list of all _linked_ worktrees sorted by private git dir path as a lightweight proxy.
+    /// Return a list of all **linked** worktrees sorted by private git dir path as a lightweight proxy.
+    ///
+    /// This means the number is `0` even if there is the main worktree, as it is not counted as linked worktree.
+    /// This also means it will be `1` if there is one linked worktree next to the main worktree.
+    /// It's worth noting that a *bare* repository may have one or more linked worktrees, but has no *main* worktree,
+    /// which is the reason why the *possibly* available main worktree isn't listed here.
     ///
     /// Note that these need additional processing to become usable, but provide a first glimpse a typical worktree information.
     pub fn worktrees(&self) -> std::io::Result<Vec<worktree::Proxy<'_>>> {
         let mut res = Vec::new();
-        let iter = match std::fs::read_dir(self.common_dir().join("worktrees")) {
+        let iter = match std::fs::read_dir(dbg!(self.common_dir()).join("worktrees")) {
             Ok(iter) => iter,
             Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(res),
             Err(err) => return Err(err),

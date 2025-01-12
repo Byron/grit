@@ -148,7 +148,7 @@ impl Negotiator for Algorithm {
     fn in_common_with_remote(&mut self, id: ObjectId, graph: &mut crate::Graph<'_, '_>) -> Result<bool, Error> {
         let known_to_be_common = graph
             .get(&id)
-            .map_or(false, |commit| commit.data.flags.contains(Flags::COMMON));
+            .is_some_and(|commit| commit.data.flags.contains(Flags::COMMON));
         self.mark_common(id, Mark::ThisCommitAndAncestors, Ancestors::DirectUnseen, graph)?;
         Ok(known_to_be_common)
     }

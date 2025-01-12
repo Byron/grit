@@ -9,7 +9,7 @@ description = "A crate of the gitoxide project for shared worktree related types
 authors = ["Sebastian Thiel <sebastian.thiel@icloud.com>"]
 edition = "2021"
 include = ["src/**/*", "LICENSE-*"]
-rust-version = "1.65"
+rust-version = "1.70"
 autotests = false
 
 [lib]

@@ -162,11 +162,10 @@ fn paint_down_to_common(
     }
 
     let mut out = Vec::new();
-    while queue.iter_unordered().any(|id| {
-        graph
-            .get(id)
-            .map_or(false, |commit| !commit.data.contains(Flags::STALE))
-    }) {
+    while queue
+        .iter_unordered()
+        .any(|id| graph.get(id).is_some_and(|commit| !commit.data.contains(Flags::STALE)))
+    {
         let (info, commit_id) = queue.pop().expect("we have non-stale");
         let commit = graph.get_mut(&commit_id).expect("everything queued is in graph");
         let mut flags_without_result = commit.data & (Flags::COMMIT1 | Flags::COMMIT2 | Flags::STALE);

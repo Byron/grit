@@ -162,7 +162,7 @@ where
     T: gix_object::Exists,
 {
     fn exists(&self, id: &gix_hash::oid) -> bool {
-        self.memory.as_ref().map_or(false, |map| map.borrow().contains_key(id)) || self.inner.exists(id)
+        self.memory.as_ref().is_some_and(|map| map.borrow().contains_key(id)) || self.inner.exists(id)
     }
 }
 

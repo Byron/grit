@@ -59,7 +59,7 @@ where
     let pattern_matches = RefCell::new(|relative_path, entry: &gix_index::Entry| {
         pathspec
             .pattern_matching_relative_path(relative_path, Some(entry.mode.is_submodule()), pathspec_attributes)
-            .map_or(false, |m| !m.is_excluded())
+            .is_some_and(|m| !m.is_excluded())
     });
 
     let (mut lhs_iter, mut rhs_iter) = (

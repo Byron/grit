@@ -342,6 +342,50 @@ mod open {
     }
 
     #[test]
+    #[cfg(feature = "revision")]
+    fn submodule_worktrees() -> crate::Result {
+        let sm_repo = crate::util::named_subrepo_opts(
+            "make_submodule_with_worktree.sh",
+            "worktree-of-submodule",
+            gix::open::Options::isolated(),
+        )?;
+        let wd = sm_repo.work_dir().expect("workdir is present");
+        assert!(
+            sm_repo.rev_parse_single(":this").is_ok(),
+            "the file is in the submodule"
+        );
+        assert!(
+            wd.join("this").is_file(),
+            "The submodule itself has the file, so it should be in the worktree"
+        );
+
+        assert_eq!(sm_repo.worktrees()?.len(), 1, "only a single linked worktree");
+        Ok(())
+    }
+
+    #[test]
+    #[cfg(feature = "revision")]
+    fn list_submodule_worktrees() -> crate::Result {
+        let sm_repo = crate::util::named_subrepo_opts(
+            "make_submodule_with_worktree.sh",
+            "submodule-with-extra-worktree-host/m1",
+            gix::open::Options::isolated(),
+        )?;
+        let wd = sm_repo.work_dir().expect("workdir is present");
+        assert!(
+            sm_repo.rev_parse_single(":this").is_ok(),
+            "the file is in the submodule"
+        );
+        assert!(
+            wd.join("this").is_file(),
+            "The submodule itself has the file, so it should be in the worktree"
+        );
+
+        assert_eq!(sm_repo.worktrees()?.len(), 1, "only a single linked worktree");
+        Ok(())
+    }
+
+    #[test]
     fn old_form() -> crate::Result {
         for name in ["old-form-invalid-worktree-path", "old-form"] {
             let repo = repo(name)?;

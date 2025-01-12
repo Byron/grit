@@ -644,7 +644,7 @@ mod baseline {
                                 attrs.pattern_matching_relative_path(rela_path, case, Some(is_dir), out)
                             },
                         )
-                        .map_or(false, |m| !m.is_excluded())
+                        .is_some_and(|m| !m.is_excluded())
                 })
                 .cloned()
                 .collect();

@@ -355,7 +355,7 @@ where
                 if *pos != 0 && (next, next_next) == (Some(&b'.'), Some(&b'.')) {
                     return false;
                 }
-                next == Some(&b'{') || next.map_or(false, |b| SEPARATORS.contains(b))
+                next == Some(&b'{') || next.is_some_and(|b| SEPARATORS.contains(b))
             } else if SEPARATORS.contains(b) {
                 true
             } else {

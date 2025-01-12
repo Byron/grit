@@ -1004,7 +1004,7 @@ fn realistic_renames_disabled_2() -> crate::Result {
     // Directories are associated with their children, making a bundling possible.
     insta::assert_debug_snapshot!(changes.into_iter()
                                      .filter(|c| !c.entry_mode().is_tree() ||
-                                                  c.relation().map_or(false, |r| matches!(r, Relation::Parent(_)))
+                                                  c.relation().is_some_and(|r| matches!(r, Relation::Parent(_)))
                                      ).collect::<Vec<_>>(), @r#"
     [
         Deletion {
@@ -1427,7 +1427,7 @@ fn realistic_renames_2() -> crate::Result {
     // Look how nicely it captures and associates this directory rename.
     insta::assert_debug_snapshot!(changes.into_iter()
                                      .filter(|c| !c.entry_mode().is_tree() ||
-                                                  c.relation().map_or(false, |r| matches!(r, Relation::Parent(_)))
+                                                  c.relation().is_some_and(|r| matches!(r, Relation::Parent(_)))
                                      ).collect::<Vec<_>>(), @r#"
     [
         Rewrite {
@@ -1690,7 +1690,7 @@ fn realistic_renames_3_without_identity() -> crate::Result {
     // Look how nicely it captures and associates this directory rename.
     insta::assert_debug_snapshot!(changes.into_iter()
                                      .filter(|c| !c.entry_mode().is_tree() ||
-                                                  c.relation().map_or(false, |r| matches!(r, Relation::Parent(_)))
+                                                  c.relation().is_some_and(|r| matches!(r, Relation::Parent(_)))
                                      ).collect::<Vec<_>>(), @r#"
     [
         Rewrite {

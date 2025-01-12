@@ -9,7 +9,7 @@ description = "A crate to drive gix-status tests with different features"
 authors = ["Sebastian Thiel <sebastian.thiel@icloud.com>", "Pascal Kuthe <pascal.kuthe@semimod.de>"]
 edition = "2021"
 publish = false
-rust-version = "1.65"
+rust-version = "1.70"
 
 [[test]]
 name = "status"

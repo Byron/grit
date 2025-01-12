@@ -257,7 +257,7 @@ impl Editor<'_> {
         let mut path_buf = self.path_buf.borrow_mut();
         let mut cursor = self.trees.get_mut(path_buf.as_bstr()).expect("root is always present");
         let mut rela_path = rela_path.into_iter().peekable();
-        let new_kind_is_tree = kind_and_id.map_or(false, |(kind, _, _)| kind == EntryKind::Tree);
+        let new_kind_is_tree = kind_and_id.is_some_and(|(kind, _, _)| kind == EntryKind::Tree);
         while let Some(name) = rela_path.next() {
             let name = name.as_ref();
             if name.is_empty() {
@@ -336,7 +336,7 @@ impl Editor<'_> {
             if needs_sorting {
                 cursor.entries.sort();
             }
-            if is_last && kind_and_id.map_or(false, |(_, _, mode)| mode == UpsertMode::Normal) {
+            if is_last && kind_and_id.is_some_and(|(_, _, mode)| mode == UpsertMode::Normal) {
                 break;
             }
             push_path_component(&mut path_buf, name);
