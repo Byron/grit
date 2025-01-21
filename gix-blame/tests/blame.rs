@@ -192,6 +192,7 @@ macro_rules! mktest {
             let lines_blamed = gix_blame::file(
                 &odb,
                 commits,
+                None,
                 &mut resource_cache,
                 format!("{}.txt", $case).as_str().into(),
                 None,
@@ -253,6 +254,7 @@ fn diff_disparity() {
         let lines_blamed = gix_blame::file(
             &odb,
             commits,
+            None,
             &mut resource_cache,
             format!("{case}.txt").as_str().into(),
             None,
@@ -277,9 +279,16 @@ fn line_range() {
         commits,
     } = Fixture::new().unwrap();
 
-    let lines_blamed = gix_blame::file(&odb, commits, &mut resource_cache, "simple.txt".into(), Some(1..2))
-        .unwrap()
-        .entries;
+    let lines_blamed = gix_blame::file(
+        &odb,
+        commits,
+        None,
+        &mut resource_cache,
+        "simple.txt".into(),
+        Some(1..2),
+    )
+    .unwrap()
+    .entries;
 
     assert_eq!(lines_blamed.len(), 2);
 

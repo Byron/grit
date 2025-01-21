@@ -26,6 +26,8 @@ use std::ops::Range;
 ///      by time.
 ///    - It's paramount that older commits are returned after newer ones.
 ///    - The first commit returned here is the first eligible commit to be responsible for parts of `file_path`.
+/// * `cache`
+///    - Optionally, the commitgraph cache.
 /// * `file_path`
 ///    - A *slash-separated* worktree-relative path to the file to blame.
 /// * `range`
@@ -66,6 +68,7 @@ use std::ops::Range;
 pub fn file<E>(
     odb: impl gix_object::Find + gix_object::FindHeader,
     traverse: impl IntoIterator<Item = Result<gix_traverse::commit::Info, E>>,
+    cache: Option<gix_commitgraph::Graph>,
     resource_cache: &mut gix_diff::blob::Platform,
     file_path: &BStr,
     range: Option<Range<u32>>,
@@ -105,10 +108,6 @@ where
         range_in_blamed_file: range_in_blamed_file.clone(),
         suspects: [(suspect, range_in_blamed_file)].into(),
     }];
-
-    // TODO
-    // Get `cache` as an argument to `file`.
-    let cache: Option<gix_commitgraph::Graph> = None;
 
     let mut buf = Vec::new();
     let commit = find(cache.as_ref(), &odb, &suspect, &mut buf)?;
