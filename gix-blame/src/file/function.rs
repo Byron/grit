@@ -14,18 +14,15 @@ use std::num::NonZeroU32;
 use std::ops::Range;
 
 /// Produce a list of consecutive [`BlameEntry`] instances to indicate in which commits the ranges of the file
-/// at `traverse[0]:<file_path>` originated in.
+/// at `suspect:<file_path>` originated in.
 ///
 /// ## Paramters
 ///
 /// * `odb`
 ///    - Access to database objects, also for used for diffing.
 ///    - Should have an object cache for good diff performance.
-/// * `traverse`
-///    - The list of commits from the most recent to prior ones, following all parents sorted
-///      by time.
-///    - It's paramount that older commits are returned after newer ones.
-///    - The first commit returned here is the first eligible commit to be responsible for parts of `file_path`.
+/// * `suspect`
+///    - The first commit to be responsible for parts of `file_path`.
 /// * `cache`
 ///    - Optionally, the commitgraph cache.
 /// * `file_path`
@@ -65,21 +62,14 @@ use std::ops::Range;
 // <---><----------><-------><-----><------->
 // <---><---><-----><-------><-----><------->
 // <---><---><-----><-------><-----><-><-><->
-pub fn file<E>(
+pub fn file(
     odb: impl gix_object::Find + gix_object::FindHeader,
-    traverse: impl IntoIterator<Item = Result<gix_traverse::commit::Info, E>>,
+    suspect: ObjectId,
     cache: Option<gix_commitgraph::Graph>,
     resource_cache: &mut gix_diff::blob::Platform,
     file_path: &BStr,
     range: Option<Range<u32>>,
-) -> Result<Outcome, Error>
-where
-    E: Into<Box<dyn std::error::Error + Send + Sync + 'static>>,
-{
-    let mut traverse = traverse.into_iter().peekable();
-    let Some(Ok(suspect)) = traverse.peek().map(|res| res.as_ref().map(|item| item.id)) else {
-        return Err(Error::EmptyTraversal);
-    };
+) -> Result<Outcome, Error> {
     let _span = gix_trace::coarse!("gix_blame::file()", ?file_path, ?suspect);
 
     let mut stats = Statistics::default();
