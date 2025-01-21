@@ -157,47 +157,7 @@ pub fn file(
 
         let commit = find(cache.as_ref(), &odb, &suspect, &mut buf)?;
 
-        type ParentIds = SmallVec<[(gix_hash::ObjectId, i64); 2]>;
-        let mut parent_ids: ParentIds = Default::default();
-
-        // TODO
-        // This is a simplified version of `collect_parents` in
-        // `gix-traverse/src/commit/topo/iter.rs`. It can probably be extracted.
-        match commit {
-            gix_traverse::commit::Either::CachedCommit(commit) => {
-                let cache = cache
-                    .as_ref()
-                    .expect("find returned a cached commit, so we expect cache to be present");
-                for parent_id in commit.iter_parents() {
-                    match parent_id {
-                        Ok(pos) => {
-                            let parent = cache.commit_at(pos);
-
-                            parent_ids.push((parent.id().to_owned(), parent.committer_timestamp() as i64));
-                        }
-                        Err(_) => todo!(),
-                    }
-                }
-            }
-            gix_traverse::commit::Either::CommitRefIter(commit_ref_iter) => {
-                for token in commit_ref_iter {
-                    match token {
-                        Ok(gix_object::commit::ref_iter::Token::Tree { .. }) => continue,
-                        Ok(gix_object::commit::ref_iter::Token::Parent { id }) => {
-                            let mut buf = Vec::new();
-                            let parent = odb.find_commit_iter(id.as_ref(), &mut buf).ok();
-                            let parent_commit_time = parent
-                                .and_then(|parent| parent.committer().ok().map(|committer| committer.time.seconds))
-                                .unwrap_or_default();
-
-                            parent_ids.push((id, parent_commit_time));
-                        }
-                        Ok(_unused_token) => break,
-                        Err(_err) => todo!(),
-                    }
-                }
-            }
-        };
+        let parent_ids: ParentIds = collect_parents(commit, &odb, cache.as_ref());
 
         if parent_ids.is_empty() {
             if queue.is_empty() {
@@ -709,6 +669,54 @@ fn find_path_entry_in_commit(
     )?;
     stats.trees_decoded -= 1;
     Ok(res.map(|e| e.oid))
+}
+
+type ParentIds = SmallVec<[(gix_hash::ObjectId, i64); 2]>;
+
+fn collect_parents(
+    commit: gix_traverse::commit::Either<'_, '_>,
+    odb: &impl gix_object::Find,
+    cache: Option<&gix_commitgraph::Graph>,
+) -> ParentIds {
+    let mut parent_ids: ParentIds = Default::default();
+
+    match commit {
+        gix_traverse::commit::Either::CachedCommit(commit) => {
+            let cache = cache
+                .as_ref()
+                .expect("find returned a cached commit, so we expect cache to be present");
+            for parent_id in commit.iter_parents() {
+                match parent_id {
+                    Ok(pos) => {
+                        let parent = cache.commit_at(pos);
+
+                        parent_ids.push((parent.id().to_owned(), parent.committer_timestamp() as i64));
+                    }
+                    Err(_) => todo!(),
+                }
+            }
+        }
+        gix_traverse::commit::Either::CommitRefIter(commit_ref_iter) => {
+            for token in commit_ref_iter {
+                match token {
+                    Ok(gix_object::commit::ref_iter::Token::Tree { .. }) => continue,
+                    Ok(gix_object::commit::ref_iter::Token::Parent { id }) => {
+                        let mut buf = Vec::new();
+                        let parent = odb.find_commit_iter(id.as_ref(), &mut buf).ok();
+                        let parent_commit_time = parent
+                            .and_then(|parent| parent.committer().ok().map(|committer| committer.time.seconds))
+                            .unwrap_or_default();
+
+                        parent_ids.push((id, parent_commit_time));
+                    }
+                    Ok(_unused_token) => break,
+                    Err(_err) => todo!(),
+                }
+            }
+        }
+    };
+
+    parent_ids
 }
 
 /// Return an iterator over tokens for use in diffing. These are usually lines, but it's important
