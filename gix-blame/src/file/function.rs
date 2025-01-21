@@ -102,39 +102,9 @@ pub fn file(
     let mut buf = Vec::new();
     let commit = find(cache.as_ref(), &odb, &suspect, &mut buf)?;
 
-    // TODO
-    // This is a simplified version of `GenAndCommitTime` in
-    // `gix-traverse/src/commit/topo/iter.rs`. There, generation is also part of the key. It’s
-    // possible we need generation, but I have too little context to know.
-    type CommitTime = i64;
-
     let mut queue: gix_revwalk::PriorityQueue<CommitTime, ObjectId> = gix_revwalk::PriorityQueue::new();
 
-    // TODO
-    // This is a simplified version of `gen_and_commit_time` in
-    // `gix-traverse/src/commit/topo/iter.rs`. It can probably be extracted.
-    let commit_time = match commit {
-        gix_traverse::commit::Either::CommitRefIter(commit_ref_iter) => {
-            let mut commit_time = 0;
-            for token in commit_ref_iter {
-                use gix_object::commit::ref_iter::Token as T;
-                match token {
-                    Ok(T::Tree { .. }) => continue,
-                    Ok(T::Parent { .. }) => continue,
-                    Ok(T::Author { .. }) => continue,
-                    Ok(T::Committer { signature }) => {
-                        commit_time = signature.time.seconds;
-                        break;
-                    }
-                    Ok(_unused_token) => break,
-                    Err(_err) => todo!(),
-                }
-            }
-            commit_time
-        }
-        gix_traverse::commit::Either::CachedCommit(commit) => commit.committer_timestamp() as i64,
-    };
-
+    let commit_time = commit_time(commit);
     queue.insert(commit_time, suspect);
 
     let mut out = Vec::new();
@@ -669,6 +639,32 @@ fn find_path_entry_in_commit(
     )?;
     stats.trees_decoded -= 1;
     Ok(res.map(|e| e.oid))
+}
+
+type CommitTime = i64;
+
+fn commit_time(commit: gix_traverse::commit::Either<'_, '_>) -> CommitTime {
+    match commit {
+        gix_traverse::commit::Either::CommitRefIter(commit_ref_iter) => {
+            let mut commit_time = 0;
+            for token in commit_ref_iter {
+                use gix_object::commit::ref_iter::Token as T;
+                match token {
+                    Ok(T::Tree { .. }) => continue,
+                    Ok(T::Parent { .. }) => continue,
+                    Ok(T::Author { .. }) => continue,
+                    Ok(T::Committer { signature }) => {
+                        commit_time = signature.time.seconds;
+                        break;
+                    }
+                    Ok(_unused_token) => break,
+                    Err(_err) => todo!(),
+                }
+            }
+            commit_time
+        }
+        gix_traverse::commit::Either::CachedCommit(commit) => commit.committer_timestamp() as i64,
+    }
 }
 
 type ParentIds = SmallVec<[(gix_hash::ObjectId, i64); 2]>;
