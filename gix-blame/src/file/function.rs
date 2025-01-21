@@ -131,14 +131,11 @@ pub fn file(
 
         if parent_ids.is_empty() {
             if queue.is_empty() {
-                // TODO
-                // Adapt comment. Also all other comments that mention `traverse`.
-                //
-                // I’m not entirely sure if this is correct yet. `suspect`, at this point, is the `id` of
-                // the last `item` that was yielded by `traverse`, so it makes sense to assign the
-                // remaining lines to it, even though we don’t explicitly check whether that is true
-                // here. We could perhaps use diff-tree-to-tree to compare `suspect`
-                // against an empty tree to validate this assumption.
+                // I’m not entirely sure if this is correct yet. `suspect`, at this point, is the
+                // `id` of the last `item` that was yielded by `queue`, so it makes sense to assign
+                // the remaining lines to it, even though we don’t explicitly check whether that is
+                // true here. We could perhaps use diff-tree-to-tree to compare `suspect` against
+                // an empty tree to validate this assumption.
                 if unblamed_to_out_is_done(&mut hunks_to_blame, &mut out, suspect) {
                     break 'outer;
                 }
