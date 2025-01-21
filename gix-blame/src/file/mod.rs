@@ -418,13 +418,6 @@ impl UnblamedHunk {
         }
     }
 
-    /// This is like [`Self::clone_blame()`], but easier to use in places
-    /// where the cloning is done 'inline'.
-    fn cloned_blame(mut self, from: ObjectId, to: ObjectId) -> Self {
-        self.clone_blame(from, to);
-        self
-    }
-
     fn clone_blame(&mut self, from: ObjectId, to: ObjectId) {
         if let Some(range_in_suspect) = self.suspects.get(&from) {
             self.suspects.insert(to, range_in_suspect.clone());
