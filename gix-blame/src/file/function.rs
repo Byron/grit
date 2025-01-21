@@ -9,7 +9,6 @@ use gix_object::{
 };
 use gix_traverse::commit::find;
 use smallvec::SmallVec;
-use std::collections::HashSet;
 use std::num::NonZeroU32;
 use std::ops::Range;
 
